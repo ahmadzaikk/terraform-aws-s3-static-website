@@ -11,12 +11,9 @@ locals {
 #------------------------------------------------------------------------------
 #tfsec:ignore:aws-s3-enable-versioning
 module "s3_logs_bucket" {
-  providers = {
-    aws = aws.main
-  }
-
+ 
   source  = "cn-terraform/logs-s3-bucket/aws"
-  version = "1.0.4"
+ 
   # source  = "../terraform-aws-logs-s3-bucket"
 
   name_prefix                   = "${var.name_prefix}-log-bucket"
@@ -35,7 +32,7 @@ module "s3_logs_bucket" {
 # Route53 Hosted Zone
 #------------------------------------------------------------------------------
 resource "aws_route53_zone" "hosted_zone" {
-  provider = aws.main
+ 
 
   count = var.create_route53_hosted_zone ? 1 : 0
 
@@ -49,7 +46,7 @@ resource "aws_route53_zone" "hosted_zone" {
 # ACM Certificate
 #------------------------------------------------------------------------------
 resource "aws_acm_certificate" "cert" {
-  provider = aws.acm_provider
+ 
 
   count = var.create_acm_certificate ? 1 : 0
 
@@ -68,7 +65,7 @@ resource "aws_acm_certificate" "cert" {
 }
 
 resource "aws_route53_record" "acm_certificate_validation_records" {
-  provider = aws.main
+ 
 
   for_each = var.create_acm_certificate ? {
     for dvo in aws_acm_certificate.cert[0].domain_validation_options : dvo.domain_name => {
@@ -87,7 +84,7 @@ resource "aws_route53_record" "acm_certificate_validation_records" {
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
-  provider = aws.acm_provider
+
 
   # Dependency to guarantee that certificate and DNS records are created before this resource
   depends_on = [
